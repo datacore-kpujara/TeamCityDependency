@@ -362,6 +362,11 @@ namespace TeamCityDependency
                     {
                         if(str.Contains("namespace"))
                         {
+
+                            Console.WriteLine(str);
+
+
+
                             int index = str.IndexOf("namespace");
                             string nspace = str.Substring(index + 11);
 
