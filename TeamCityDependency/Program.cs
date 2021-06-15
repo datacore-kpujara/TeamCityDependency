@@ -293,7 +293,7 @@ namespace TeamCityDependency
                 }
             }*/
 
-            List<string> files = getAllChangedFiles(@"C:\Users\kpujara\Desktop\trialFile.txt");
+            List<string> files = getAllChangedFiles(args[1]);
             foreach(string file in files)
             {
                 list.Add(file);
