@@ -34,7 +34,7 @@ namespace TeamCityDependency
                 }
             }
 
-            File.WriteAllLinesAsync(AppDomain.CurrentDomain.BaseDirectory + "\\WriteLines.txt", list);
+            File.WriteAllLinesAsync("WriteLines.txt", list);
 
         }
     }
