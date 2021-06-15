@@ -260,7 +260,7 @@ namespace TeamCityDependency
         {
             variableSetup();
             systemBinaryLoad();
-            mapSetup("\\TeamCityDependency\\");
+            mapSetup("TeamCityDependency\\");
             serializeMap("dependency.io");
 
             /*string[] lines =
