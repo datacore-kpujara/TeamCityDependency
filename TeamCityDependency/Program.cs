@@ -260,8 +260,8 @@ namespace TeamCityDependency
         {
             variableSetup();
             systemBinaryLoad();
-            mapSetup("");
-            serializeMap("");
+            mapSetup(".\\");
+            serializeMap(".\\");
 
             /*string[] lines =
             {
