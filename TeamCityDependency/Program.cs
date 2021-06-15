@@ -260,7 +260,7 @@ namespace TeamCityDependency
         {
 
 
-            string[] systemFileNames = Directory.GetFiles(@"C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\", " *.exe", SearchOption.AllDirectories).ToArray();
+            string[] systemFileNames = Directory.GetFiles(@"C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\", "*", SearchOption.AllDirectories).ToArray();
             foreach(string str in systemFileNames)
             {
                 Console.WriteLine(str);
