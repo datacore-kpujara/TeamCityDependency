@@ -18,13 +18,13 @@ namespace TeamCityDependency
 
             List<string> list = new List<string>();
 
-            int index = 1;
+            int index = 0;
             while(index < args.Length)
             {
                 list.Add("Argument no" + index++ + " " + args[index]);
             }
 
-            var webRequest = WebRequest.Create(@"http://172.20.0.179/httpAuth/downloadBuildLog.html?buildId=324080");
+            /*var webRequest = WebRequest.Create(@"http://172.20.0.179/httpAuth/downloadBuildLog.html?buildId=324080");
             webRequest.Method = "GET";
             webRequest.Headers["Authorization"] = "Basic " + Convert.ToBase64String(System.Text.Encoding.Default.GetBytes("kpujara:Lilyaldrin123"));
 
@@ -36,7 +36,7 @@ namespace TeamCityDependency
                 {
                     list.Add(reader.ReadLine());
                 }
-            }
+            }*/
 
             File.WriteAllLinesAsync("WriteLines.txt", list);
 
