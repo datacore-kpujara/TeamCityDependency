@@ -362,15 +362,11 @@ namespace TeamCityDependency
                     {
                         if(str.Contains("namespace"))
                         {
-
-                            Console.WriteLine(str);
-
-
-
+                            Console.WriteLine("Found the namespace-> " + str);
                             int index = str.IndexOf("namespace");
-                            string nspace = str.Substring(index + 11);
+                            string nspace = str.Substring(index + 10);
 
-                            changedFile = nspace + changedFile;
+                            changedFile = nspace + "." + changedFile;
 
                             break;
                         }
