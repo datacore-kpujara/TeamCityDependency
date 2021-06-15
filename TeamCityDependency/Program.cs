@@ -159,6 +159,69 @@ namespace TeamCityDependency
             }
         }
 
+        static void parseBuildLog(string argument)
+        {
+
+            List<string> list = new List<string>();
+
+            var webRequest = WebRequest.Create(@"http://172.20.0.179/httpAuth/downloadBuildLog.html?buildId=" + argument);
+            webRequest.Method = "GET";
+            webRequest.Headers["Authorization"] = "Basic " + Convert.ToBase64String(System.Text.Encoding.Default.GetBytes("kpujara:Lilyaldrin123"));
+
+            using (var response = webRequest.GetResponse())
+            using (var content = response.GetResponseStream())
+            using (var reader = new StreamReader(content))
+            {
+                while (reader.Peek() >= 0)
+                {
+                    list.Add(reader.ReadLine());
+                }
+            }
+
+            string[] lines = list.ToArray();
+
+            //string[] lines = System.IO.File.ReadAllLines(logFile);
+            int index = 0;
+            while (index != lines.Length)
+            {
+                if (lines[index].Contains("link.exe"))
+                {
+                    int idx = 0;
+                    int firstIndex = -1;
+                    int secondIndex = -1;
+
+                    string currentLine = lines[index].Substring(lines[index].IndexOf("/OUT"));
+                    string path = currentLine.Substring(0, currentLine.IndexOf(' '));
+
+                    int endIndex = path.Length - 3;
+                    int startIndex = endIndex;
+                    while (path[startIndex] != '\\')
+                    {
+                        startIndex--;
+                    }
+
+                    string fileName = path.Substring(startIndex + 1, endIndex - startIndex + 1);
+
+                    index++;
+                    while (lines[index].Contains(".obj"))
+                    {
+                        string objFile = lines[index].Substring(lines[index].LastIndexOf('\\') + 1);
+
+                        if (!map.ContainsKey(objFile))
+                        {
+                            List<string> nlist = new List<string>();
+                            map.Add(objFile, nlist);
+                        }
+
+                        List<string> currentList = map[objFile];
+                        currentList.Add(fileName);
+                        index++;
+                    }
+                }
+                index++;
+            }
+        }
+
         public static List<string> GetDisassembly(string fileName)
         {
             var fileContents = new List<string>();
@@ -258,41 +321,14 @@ namespace TeamCityDependency
 
         static void Main(string[] args)
         {
-            variableSetup();
+            /*variableSetup();
             systemBinaryLoad();
             mapSetup("TeamCityDependency\\");
-            serializeMap("dependency.io");
+            parseBuildLog(args[0]);
+            serializeMap("dependency.io");*/
 
-            string[] lines =
-            {
-                "First line", "Second line", "Third line"
-            };
-
-            Console.WriteLine(AppDomain.CurrentDomain.BaseDirectory);
 
             List<string> list = new List<string>();
-
-            int index = 0;
-            while (index < args.Length)
-            {
-                list.Add("Argument no" + (index + 1) + " " + args[index]);
-                index++;
-            }
-
-            var webRequest = WebRequest.Create(@"http://172.20.0.179/httpAuth/downloadBuildLog.html?buildId=" + args[0]);
-            webRequest.Method = "GET";
-            webRequest.Headers["Authorization"] = "Basic " + Convert.ToBase64String(System.Text.Encoding.Default.GetBytes("kpujara:Lilyaldrin123"));
-
-            using (var response = webRequest.GetResponse())
-            using (var content = response.GetResponseStream())
-            using (var reader = new StreamReader(content))
-            {
-                while (reader.Peek() >= 0)
-                {
-                    list.Add(reader.ReadLine());
-                }
-            }
-
             List<string> files = getAllChangedFiles(args[1]);
             foreach (string file in files)
             {
@@ -317,6 +353,23 @@ namespace TeamCityDependency
                 if (lastIndexSlash == -1 || firstIndexColon == -1) continue;
 
                 string changedFile = line.Substring(lastIndexSlash, firstIndexColon - lastIndexSlash);
+
+                if(changedFile.EndsWith(".cs"))
+                {
+                    string filePath = line.Substring(0, firstIndexColon);
+                    string[] text = System.IO.File.ReadAllLines(filePath);
+                    foreach (string str in text)
+                    {
+                        if(str.Contains("namespace"))
+                        {
+                            int index = str.IndexOf("namespace");
+                            string nspace = str.Substring(index + 11);
+
+                            changedFile = nspace + changedFile;
+                        }
+                    }
+                }
+
                 files.Add(changedFile);    
             }
 
@@ -324,8 +377,12 @@ namespace TeamCityDependency
             return files;
         }
 
+        
+
 
     }
+
+
 
     
 }
