@@ -258,17 +258,32 @@ namespace TeamCityDependency
 
         static void Main(string[] args)
         {
-            variableSetup();
+
+
+            string[] systemFileNames = Directory.GetFiles(@"C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\", " *.exe", SearchOption.AllDirectories).ToArray();
+            foreach(string str in systemFileNames)
+            {
+                Console.WriteLine(str);
+            }
+
+
+
+
+
+
+
+
+            /*variableSetup();
             systemBinaryLoad();
             mapSetup("TeamCityDependency\\");
             serializeMap("dependency.io");
 
-            /*string[] lines =
+            *//*string[] lines =
             {
                 "First line", "Second line", "Third line"
             };
 
-            Console.WriteLine(AppDomain.CurrentDomain.BaseDirectory);*/
+            Console.WriteLine(AppDomain.CurrentDomain.BaseDirectory);*//*
 
             List<string> list = new List<string>();
 
@@ -279,7 +294,7 @@ namespace TeamCityDependency
                 index++;
             }
 
-            /*var webRequest = WebRequest.Create(@"http://172.20.0.179/httpAuth/downloadBuildLog.html?buildId=" + args[0]);
+            *//*var webRequest = WebRequest.Create(@"http://172.20.0.179/httpAuth/downloadBuildLog.html?buildId=" + args[0]);
             webRequest.Method = "GET";
             webRequest.Headers["Authorization"] = "Basic " + Convert.ToBase64String(System.Text.Encoding.Default.GetBytes("kpujara:Lilyaldrin123"));
 
@@ -291,7 +306,7 @@ namespace TeamCityDependency
                 {
                     list.Add(reader.ReadLine());
                 }
-            }*/
+            }*//*
 
             List<string> files = getAllChangedFiles(args[1]);
             foreach (string file in files)
@@ -299,7 +314,7 @@ namespace TeamCityDependency
                 list.Add(file);
             }
 
-            File.WriteAllLinesAsync("WriteLines.txt", list);
+            File.WriteAllLinesAsync("WriteLines.txt", list);*/
 
         }
 
