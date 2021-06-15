@@ -419,6 +419,8 @@ namespace TeamCityDependency
             parseBuildLog(args[0]);
             serializeMap("dependency.io");
             List<string> files = getAllChangedFiles(args[1]);
+
+            files.Add("DataCore.Executive.Base.dll");
             File.WriteAllLinesAsync("WriteLines.txt", files);
             foreach(string file in files)
             {
