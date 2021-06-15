@@ -203,7 +203,7 @@ namespace TeamCityDependency
             catch (Exception e1)
             {
                 Console.WriteLine("Error occured in disassembling");
-                /*Console.WriteLine(e1);*/
+                Console.WriteLine(e1);
             }
             return fileContents;
         }
