@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.Serialization.Formatters.Binary;
+using Newtonsoft.Json;
 
 namespace TeamCityDependency
 {
@@ -318,32 +319,10 @@ namespace TeamCityDependency
             }
         }
 
-
-        static void Main(string[] args)
-        {
-            /*variableSetup();
-            systemBinaryLoad();
-            mapSetup("TeamCityDependency\\");
-            parseBuildLog(args[0]);
-            serializeMap("dependency.io");*/
-
-
-            List<string> list = new List<string>();
-            List<string> files = getAllChangedFiles(args[1]);
-            foreach (string file in files)
-            {
-                list.Add(file);
-            }
-
-            File.WriteAllLinesAsync("WriteLines.txt", list);
-
-        }
-
         public static List<string> getAllChangedFiles(string path)
         {
             string[] lines = System.IO.File.ReadAllLines(path);
             List<string> files = new List<string>();
-
 
             foreach (string line in lines)
             {
@@ -354,13 +333,13 @@ namespace TeamCityDependency
 
                 string changedFile = line.Substring(lastIndexSlash, firstIndexColon - lastIndexSlash);
 
-                if(changedFile.EndsWith(".cs"))
+                if (changedFile.EndsWith(".cs"))
                 {
                     string filePath = line.Substring(0, firstIndexColon);
                     string[] text = System.IO.File.ReadAllLines(filePath);
                     foreach (string str in text)
                     {
-                        if(str.Contains("namespace"))
+                        if (str.Contains("namespace"))
                         {
                             Console.WriteLine("Found the namespace-> " + str);
                             int index = str.IndexOf("namespace");
@@ -373,19 +352,91 @@ namespace TeamCityDependency
                     }
                 }
 
-                files.Add(changedFile);    
+                files.Add(changedFile);
             }
-
-
             return files;
         }
 
-        
+        public static void generateJSON(string binary)
+        {
+            hs = new HashSet<string>();
+            if (binary.EndsWith(".cs") || binary.EndsWith(".cpp") || binary.EndsWith(".c"))
+            {
+                string oldB = binary;
+
+                if (binary.EndsWith(".cs"))
+                {
+                    binary = binary.Substring(0, binary.Length - 3) + ".dll";
+                }
+                else if (binary.EndsWith(".c"))
+                {
+                    binary = binary.Substring(0, binary.Length - 2) + ".obj";
+                }
+                else if (binary.EndsWith(".cpp"))
+                {
+                    binary = binary.Substring(0, binary.Length - 4) + ".obj";
+                }
+            }
+
+            Dependency d = BuildDependencyClass(binary);
+            String jsonStr = JsonConvert.SerializeObject(d);
+            File.WriteAllText(binary+".json", jsonStr);
+        }
+
+        public static Dependency BuildDependencyClass(string baseDLL)
+        {
+            List<Dependency> dList = new List<Dependency>();
+            Dependency d = new Dependency()
+            {
+                name = baseDLL,
+                affects = dList
+            };
+
+            hs.Add(baseDLL);
+
+            if (!map.ContainsKey(baseDLL))
+            {
+                return d;
+            }
+            List<string> dependants = map[baseDLL];
+            foreach (string str in dependants)
+            {
+                if (!hs.Contains(str))
+                {
+                    Dependency dNew = BuildDependencyClass(str);
+                    d.affects.Add(dNew);
+                }
+            }
+
+            return d;
+        }
+
+        static void Main(string[] args)
+        {
+            variableSetup();
+            systemBinaryLoad();
+            mapSetup("Datacore\\Executive\\");
+            parseBuildLog(args[0]);
+            serializeMap("dependency.io");
+            List<string> files = getAllChangedFiles(args[1]);
+            File.WriteAllLinesAsync("WriteLines.txt", files);
+            foreach(string file in files)
+            {
+                generateJSON(file);
+            }
 
 
+        }
+    }
+
+
+    public class Dependency
+    {
+        public string name { get; set; }
+        public List<Dependency> affects { get; set; }
     }
 
 
 
-    
+
 }
