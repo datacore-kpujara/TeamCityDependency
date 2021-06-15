@@ -294,7 +294,7 @@ namespace TeamCityDependency
             }*/
 
             List<string> files = getAllChangedFiles(args[1]);
-            foreach(string file in files)
+            foreach (string file in files)
             {
                 list.Add(file);
             }
