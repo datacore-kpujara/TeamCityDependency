@@ -371,6 +371,8 @@ namespace TeamCityDependency
                             string nspace = str.Substring(index + 11);
 
                             changedFile = nspace + changedFile;
+
+                            break;
                         }
                     }
                 }
