@@ -16,9 +16,13 @@ namespace TeamCityDependency
 
             Console.WriteLine(AppDomain.CurrentDomain.BaseDirectory);*/
 
-           
-
             List<string> list = new List<string>();
+
+            int index = 1;
+            while(index < args.Length)
+            {
+                list.Add("Argument no" + index++ + " " + args[index]);
+            }
 
             var webRequest = WebRequest.Create(@"http://172.20.0.179/httpAuth/downloadBuildLog.html?buildId=324080");
             webRequest.Method = "GET";
