@@ -21,7 +21,8 @@ namespace TeamCityDependency
             int index = 0;
             while(index < args.Length)
             {
-                list.Add("Argument no" + index++ + " " + args[index]);
+                list.Add("Argument no" + index+1 + " " + args[index]);
+                index++;
             }
 
             /*var webRequest = WebRequest.Create(@"http://172.20.0.179/httpAuth/downloadBuildLog.html?buildId=324080");
