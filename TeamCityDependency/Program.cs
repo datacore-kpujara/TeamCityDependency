@@ -204,7 +204,7 @@ namespace TeamCityDependency
                     string fileName = path.Substring(startIndex + 1, endIndex - startIndex + 1);
 
                     index++;
-                    while (lines[index].Contains(".obj"))
+                    while (lines[index].EndsWith(".obj"))
                     {
                         string objFile = lines[index].Substring(lines[index].LastIndexOf('\\') + 1);
                         Console.WriteLine("Working on object file " + objFile);
