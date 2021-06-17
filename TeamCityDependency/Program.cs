@@ -96,7 +96,7 @@ namespace TeamCityDependency
         public static void parseBinary(string currentBinary, List<string> manifest, Boolean ild)
         {
 
-            if (hs.Contains(currentBinary)) return;
+            if (hs.Contains(currentBinary) || currentBinary.StartsWith("Microsoft") || currentBinary.StartsWith("DevExpress")) return;
 
             foreach (string str in manifest)
             {
@@ -207,6 +207,7 @@ namespace TeamCityDependency
                     while (lines[index].Contains(".obj"))
                     {
                         string objFile = lines[index].Substring(lines[index].LastIndexOf('\\') + 1);
+                        Console.WriteLine("Working on object file " + objFile);
 
                         if (!map.ContainsKey(objFile))
                         {
@@ -419,8 +420,8 @@ namespace TeamCityDependency
             parseBuildLog(args[0]);
             //serializeMap("dependency.io");
             List<string> files = getAllChangedFiles(args[1]);
-            files.Add("DataCore.Executive.Base.dll");
-            File.WriteAllLinesAsync("WriteLines.txt", files);
+            //files.Add("DataCore.Executive.Base.dll");
+            File.WriteAllLinesAsync("ChangedFiles.txt", files);
             foreach(string file in files)
             {
                 generateJSON(file);
