@@ -11,6 +11,7 @@ using System.Reflection;
 using System.Runtime.Serialization.Formatters.Binary;
 using Newtonsoft.Json;
 using System.Net.Mail;
+using System.Threading;
 
 namespace TeamCityDependency
 {
@@ -429,7 +430,7 @@ namespace TeamCityDependency
             List<string> dependants = map[baseDLL];
             foreach (string str in dependants)
             {
-                if (baseDLL.EndsWith(".sys"))
+                if (str.EndsWith(".sys"))
                 {
                     affectedSystemFiles.Add(baseDLL);
                 }
@@ -457,6 +458,9 @@ namespace TeamCityDependency
             variableSetup();
             systemBinaryLoad();
             mapSetup("Datacore\\");
+
+            Thread.Sleep(5000);
+
             parseBuildLog(args[0]);
             //serializeMap("dependency.io");
             List<string> files = getAllChangedFiles(args[1]);
