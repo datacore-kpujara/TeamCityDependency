@@ -413,12 +413,6 @@ namespace TeamCityDependency
 
         public static Dependency BuildDependencyClass(string baseDLL)
         {
-
-            if(baseDLL.EndsWith(".sys"))
-            {
-                affectedSystemFiles.Add(baseDLL);
-            }
-
             List<Dependency> dList = new List<Dependency>();
             Dependency d = new Dependency()
             {
@@ -435,6 +429,11 @@ namespace TeamCityDependency
             List<string> dependants = map[baseDLL];
             foreach (string str in dependants)
             {
+                if (baseDLL.EndsWith(".sys"))
+                {
+                    affectedSystemFiles.Add(baseDLL);
+                }
+
                 if (!hs.Contains(str))
                 {
                     Dependency dNew = BuildDependencyClass(str);
