@@ -389,6 +389,9 @@ namespace TeamCityDependency
 
         public static void sendMail(HashSet<string> systemFiles)
         {
+
+            Console.WriteLine("Reached Mail Line");
+
             MailMessage mail = new MailMessage();
             SmtpClient SmtpServer = new SmtpClient("smtp-mail.outlook.com");
 
@@ -463,6 +466,10 @@ namespace TeamCityDependency
             foreach (string file in files)
             {
                 generateJSON(file);
+            }
+            foreach(String s in affectedSystemFiles)
+            {
+                Console.WriteLine(s);
             }
             sendSystemFileMails();
         }
