@@ -10,6 +10,7 @@ using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.Serialization.Formatters.Binary;
 using Newtonsoft.Json;
+using System.Net.Mail;
 
 namespace TeamCityDependency
 {
@@ -24,6 +25,7 @@ namespace TeamCityDependency
         static string baseDirectory;
         static Dictionary<string, List<string>> map;
         static HashSet<string> hs;
+        static HashSet<string> affectedSystemFiles;
 
         static void variableSetup()
         {
@@ -35,6 +37,7 @@ namespace TeamCityDependency
             baseDirectory = "C:\\datacore-sds\\GitHub\\datacore-sds\\DataCore\\Executive\\";
             map = new Dictionary<string, List<string>>();
             hs = new HashSet<string>();
+            affectedSystemFiles = new HashSet<string>();
         }
 
         static void systemBinaryLoad()
@@ -384,8 +387,35 @@ namespace TeamCityDependency
             File.WriteAllText(binary+".json", jsonStr);
         }
 
+        public static void sendMail(HashSet<string> systemFiles)
+        {
+            MailMessage mail = new MailMessage();
+            SmtpClient SmtpServer = new SmtpClient("smtp-mail.outlook.com");
+
+            mail.From = new MailAddress("teamcity@datacore.com");
+            mail.To.Add("khushalpujara@gmail.com");
+            mail.Subject = "System Files Affected";
+            mail.Body = "The following files need to be re-tested \n";
+            foreach(String s in systemFiles)
+            {
+                mail.Body += s + "\n";
+            }
+
+            SmtpServer.Port = 587;
+            SmtpServer.Credentials = new System.Net.NetworkCredential("teamcity@datacore.com", ".b=JWU6KdRTq2B*_");
+            SmtpServer.EnableSsl = true;
+
+            SmtpServer.Send(mail);
+        }
+
         public static Dependency BuildDependencyClass(string baseDLL)
         {
+
+            if(baseDLL.EndsWith(".sys"))
+            {
+                affectedSystemFiles.Add(baseDLL);
+            }
+
             List<Dependency> dList = new List<Dependency>();
             Dependency d = new Dependency()
             {
@@ -412,6 +442,14 @@ namespace TeamCityDependency
             return d;
         }
 
+        static void sendSystemFileMails()
+        {
+            if(affectedSystemFiles.Count != 0)
+            {
+                sendMail(affectedSystemFiles);
+            }
+        }
+
         static void Main(string[] args)
         {
             variableSetup();
@@ -420,12 +458,13 @@ namespace TeamCityDependency
             parseBuildLog(args[0]);
             //serializeMap("dependency.io");
             List<string> files = getAllChangedFiles(args[1]);
-            //files.Add("DataCore.Executive.Base.dll");
+            files.Add("PhysicalDisk.cpp");
             File.WriteAllLinesAsync("ChangedFiles.txt", files);
-            foreach(string file in files)
+            foreach (string file in files)
             {
                 generateJSON(file);
             }
+            sendSystemFileMails();
         }
     }
 
