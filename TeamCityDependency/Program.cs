@@ -444,7 +444,7 @@ namespace TeamCityDependency
             {
                 if (str.EndsWith(".sys"))
                 {
-                    affectedSystemFiles.Add(baseDLL);
+                    affectedSystemFiles.Add(str);
                 }
 
                 if (!hs.Contains(str))
