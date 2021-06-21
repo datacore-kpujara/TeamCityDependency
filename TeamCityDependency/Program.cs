@@ -228,6 +228,18 @@ namespace TeamCityDependency
             }
         }
 
+        public static void refreshAPIS(String argument)
+        {
+            List<string> list = new List<string>();
+
+            var webRequest = WebRequest.Create(@"http://172.20.0.179/httpAuth/downloadBuildLog.html?buildId=" + argument);
+            webRequest.Method = "GET";
+            webRequest.Headers["Authorization"] = "Basic " + Convert.ToBase64String(System.Text.Encoding.Default.GetBytes("kpujara:Lilyaldrin123"));
+
+            var response = webRequest.GetResponse();
+            var content = response.GetResponseStream();
+        }
+
         public static List<string> GetDisassembly(string fileName)
         {
             var fileContents = new List<string>();
@@ -458,9 +470,10 @@ namespace TeamCityDependency
             variableSetup();
             systemBinaryLoad();
             mapSetup("Datacore\\");
-
-            Thread.Sleep(5000);
-
+            for(int i = 0; i < 2; i ++)
+            {
+                refreshAPIS(args[0]);
+            }
             parseBuildLog(args[0]);
             //serializeMap("dependency.io");
             List<string> files = getAllChangedFiles(args[1]);
