@@ -167,19 +167,34 @@ namespace TeamCityDependency
         static void parseBuildLog(string argument)
         {
 
-            List<string> list = new List<string>();
+            Boolean BuildDatacoreStarted = false;
+            Boolean BuildDatacoreCompleted = false;
 
-            var webRequest = WebRequest.Create(@"http://172.20.0.179/httpAuth/downloadBuildLog.html?buildId=" + argument);
-            webRequest.Method = "GET";
-            webRequest.Headers["Authorization"] = "Basic " + Convert.ToBase64String(System.Text.Encoding.Default.GetBytes("kpujara:Lilyaldrin123"));
-
-            using (var response = webRequest.GetResponse())
-            using (var content = response.GetResponseStream())
-            using (var reader = new StreamReader(content))
+            List<string> list = new List<string>(); 
+            while (!BuildDatacoreCompleted || !BuildDatacoreStarted)
             {
-                while (reader.Peek() >= 0)
+                list = new List<string>();
+                var webRequest = WebRequest.Create(@"http://172.20.0.179/httpAuth/downloadBuildLog.html?buildId=" + argument);
+                webRequest.Method = "GET";
+                webRequest.Headers["Authorization"] = "Basic " + Convert.ToBase64String(System.Text.Encoding.Default.GetBytes("kpujara:Lilyaldrin123"));
+
+                using (var response = webRequest.GetResponse())
+                using (var content = response.GetResponseStream())
+                using (var reader = new StreamReader(content))
                 {
-                    list.Add(reader.ReadLine());
+                    while (reader.Peek() >= 0)
+                    {
+                        list.Add(reader.ReadLine());
+                        if(!BuildDatacoreStarted && list[list.Count - 1].Contains("Build DataCore"))
+                        {
+                            BuildDatacoreStarted = true;
+                        }
+
+                        if(BuildDatacoreStarted && list[list.Count - 1].Contains("Process exited with code 0"))
+                        {
+                            BuildDatacoreCompleted = true;
+                        }
+                    }
                 }
             }
 
@@ -191,10 +206,6 @@ namespace TeamCityDependency
             {
                 if (lines[index].Contains("link.exe"))
                 {
-                    int idx = 0;
-                    int firstIndex = -1;
-                    int secondIndex = -1;
-
                     string currentLine = lines[index].Substring(lines[index].IndexOf("/OUT"));
                     string path = currentLine.Substring(0, currentLine.IndexOf(' '));
 
@@ -475,7 +486,6 @@ namespace TeamCityDependency
                 refreshAPIS(args[0]);
             }
             parseBuildLog(args[0]);
-            //serializeMap("dependency.io");
             List<string> files = getAllChangedFiles(args[1]);
             files.Add("PhysicalDisk.cpp");
             File.WriteAllLinesAsync("ChangedFiles.txt", files);
