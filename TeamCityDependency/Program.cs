@@ -171,7 +171,7 @@ namespace TeamCityDependency
             Boolean BuildDatacoreCompleted = false;
 
             List<string> list = new List<string>(); 
-            while (!BuildDatacoreCompleted || !BuildDatacoreStarted)
+            while (!BuildDatacoreCompleted && !BuildDatacoreStarted)
             {
                 list = new List<string>();
                 var webRequest = WebRequest.Create(@"http://172.20.0.179/httpAuth/downloadBuildLog.html?buildId=" + argument);
