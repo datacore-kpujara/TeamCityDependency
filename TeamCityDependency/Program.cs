@@ -489,12 +489,9 @@ namespace TeamCityDependency
                 webRequest.Accept = "application/json";
                 webRequest.Headers["Authorization"] = "Basic " + Convert.ToBase64String(System.Text.Encoding.Default.GetBytes("kpujara:Lilyaldrin123"));
 
-
                 var response = webRequest.GetResponse();
                 var content = response.GetResponseStream();
                 var reader = new StreamReader(content).ReadToEnd();
-
-
 
                 dynamic data = JObject.Parse(reader);
 
@@ -516,7 +513,13 @@ namespace TeamCityDependency
 
             }catch(Exception e)
             {
+                Console.WriteLine("Error Has Occured");
                 Console.WriteLine(e);
+            }
+
+            foreach(string s in buildInformation)
+            {
+                Console.WriteLine(s);
             }
 
             return buildInformation;
