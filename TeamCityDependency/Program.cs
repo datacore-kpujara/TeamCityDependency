@@ -479,38 +479,44 @@ namespace TeamCityDependency
 
         public static List<string> getBuildInformation(string argument)
         {
-
-
-            List<string> list = new List<string>();
-            var webRequest = (HttpWebRequest)WebRequest.Create(@"http://172.20.0.179/httpAuth/app/rest/builds/id:" + argument);
-
-            webRequest.Method = "GET";
-            webRequest.Accept = "application/json";
-            webRequest.Headers["Authorization"] = "Basic " + Convert.ToBase64String(System.Text.Encoding.Default.GetBytes("kpujara:Lilyaldrin123"));
-
-
-            var response = webRequest.GetResponse();
-            var content = response.GetResponseStream();
-            var reader = new StreamReader(content).ReadToEnd();
-
             List<string> buildInformation = new List<String>();
-            
-            dynamic data = JObject.Parse(reader);
 
-            Console.WriteLine(data);
-
-            buildInformation.Add((string) "Build ID : " + data["id"]);
-            buildInformation.Add((string)"Build Type ID : " + data["buildTypeId"]);
-            buildInformation.Add((string)"Build Number : " + data["number"]);
-            buildInformation.Add((string)"Branch Name : " + data["branchName"]);
-
-            if(data["triggered"]["type"] == "vcs")
+            try
             {
-                buildInformation.Add((string)"Triggered By : VCS");
-            }
-            else
+                var webRequest = (HttpWebRequest)WebRequest.Create(@"http://172.20.0.179/httpAuth/app/rest/builds/id:" + argument);
+
+                webRequest.Method = "GET";
+                webRequest.Accept = "application/json";
+                webRequest.Headers["Authorization"] = "Basic " + Convert.ToBase64String(System.Text.Encoding.Default.GetBytes("kpujara:Lilyaldrin123"));
+
+
+                var response = webRequest.GetResponse();
+                var content = response.GetResponseStream();
+                var reader = new StreamReader(content).ReadToEnd();
+
+
+
+                dynamic data = JObject.Parse(reader);
+
+                Console.WriteLine(data);
+
+                buildInformation.Add((string)"Build ID : " + data["id"]);
+                buildInformation.Add((string)"Build Type ID : " + data["buildTypeId"]);
+                buildInformation.Add((string)"Build Number : " + data["number"]);
+                buildInformation.Add((string)"Branch Name : " + data["branchName"]);
+
+                if (data["triggered"]["type"] == "vcs")
+                {
+                    buildInformation.Add((string)"Triggered By : VCS");
+                }
+                else
+                {
+                    buildInformation.Add((string)"Triggered By : " + data["triggered"]["user"]["username"]);
+                }
+
+            }catch(Exception e)
             {
-                buildInformation.Add((string)"Triggered By : " + data["triggered"]["user"]["username"]);
+                Console.WriteLine(e);
             }
 
             return buildInformation;
@@ -533,7 +539,7 @@ namespace TeamCityDependency
             {
                 Console.WriteLine(s);
             }
-            List<string> buildInformation = getBuildInformation(args[1]);
+            List<string> buildInformation = getBuildInformation(args[0]);
             sendSystemFileMails(buildInformation);
 
  
