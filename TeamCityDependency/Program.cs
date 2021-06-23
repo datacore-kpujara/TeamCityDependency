@@ -446,7 +446,7 @@ namespace TeamCityDependency
                 mail.Body += str + "\n";
             }
 
-            mail.Body = "\n The following drivers need to be re-tested \n";
+            mail.Body += "\n The following drivers need to be re-tested \n";
             foreach(String s in systemFiles)
             {
                 mail.Body += s + "\n";
