@@ -174,7 +174,7 @@ namespace TeamCityDependency
             int limitIndex = -1;
 
             List<string> list = new List<string>(); 
-            while (!BuildDatacoreCompleted && !BuildDatacoreStarted)
+            while (!BuildDatacoreCompleted || !BuildDatacoreStarted)
             {
                 list = new List<string>();
                 var webRequest = WebRequest.Create(@"http://172.20.0.179/httpAuth/downloadBuildLog.html?buildId=" + argument);
@@ -225,7 +225,7 @@ namespace TeamCityDependency
                     string fileName = path.Substring(startIndex + 1, endIndex - startIndex + 1);
 
                     index++;
-                    while (lines[index].EndsWith(".obj"))
+                    while (index < lines.Length && lines[index].EndsWith(".obj"))
                     {
                         string objFile = lines[index].Substring(lines[index].LastIndexOf('\\') + 1);
                         Console.WriteLine("Working on object file " + objFile);
@@ -525,6 +525,46 @@ namespace TeamCityDependency
             return buildInformation;
         }
 
+        public static void testMethod(string argument)
+        {
+            Boolean BuildDatacoreStarted = false;
+            Boolean BuildDatacoreCompleted = false;
+            int limitIndex = -1;
+
+            List<string> list = new List<string>();
+            while (!BuildDatacoreCompleted || !BuildDatacoreStarted)
+            {
+                list = new List<string>();
+                var webRequest = WebRequest.Create(@"http://172.20.0.179/httpAuth/downloadBuildLog.html?buildId=" + argument);
+                webRequest.Method = "GET";
+                webRequest.Headers["Authorization"] = "Basic " + Convert.ToBase64String(System.Text.Encoding.Default.GetBytes("kpujara:Lilyaldrin123"));
+
+                using (var response = webRequest.GetResponse())
+                using (var content = response.GetResponseStream())
+                using (var reader = new StreamReader(content))
+                {
+                    int idx = 0;
+                    while (reader.Peek() >= 0)
+                    {
+                        list.Add(reader.ReadLine());
+                        if (!BuildDatacoreStarted && list[list.Count - 1].Contains("Build DataCore"))
+                        {
+                            BuildDatacoreStarted = true;
+                            limitIndex = idx;
+                            Console.WriteLine("Build Process Started");
+                        }
+
+                        if (BuildDatacoreStarted && idx > limitIndex && list[idx].Contains("Process exited with code 0"))
+                        {
+                            BuildDatacoreCompleted = true;
+                            Console.WriteLine("Build Process Eneded");
+                        }
+                        idx++;
+                    }
+                }
+            }
+        }
+
         static void Main(string[] args)
         {
             variableSetup();
@@ -545,7 +585,11 @@ namespace TeamCityDependency
             List<string> buildInformation = getBuildInformation(args[0]);
             sendSystemFileMails(buildInformation);
 
- 
+
+            //testMethod("324398");
+
+
+
         }
     }
 
