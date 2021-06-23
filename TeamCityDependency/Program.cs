@@ -171,6 +171,7 @@ namespace TeamCityDependency
 
             Boolean BuildDatacoreStarted = false;
             Boolean BuildDatacoreCompleted = false;
+            int limitIndex = -1;
 
             List<string> list = new List<string>(); 
             while (!BuildDatacoreCompleted && !BuildDatacoreStarted)
@@ -184,18 +185,21 @@ namespace TeamCityDependency
                 using (var content = response.GetResponseStream())
                 using (var reader = new StreamReader(content))
                 {
+                    int idx = 0;
                     while (reader.Peek() >= 0)
                     {
                         list.Add(reader.ReadLine());
                         if(!BuildDatacoreStarted && list[list.Count - 1].Contains("Build DataCore"))
                         {
                             BuildDatacoreStarted = true;
+                            limitIndex = idx;
                         }
 
-                        if(BuildDatacoreStarted && list[list.Count - 1].Contains("Process exited with code 0"))
+                        if(BuildDatacoreStarted && idx > limitIndex && list[list.Count - 1].Contains("Process exited with code 0"))
                         {
                             BuildDatacoreCompleted = true;
                         }
+                        idx++;
                     }
                 }
             }
