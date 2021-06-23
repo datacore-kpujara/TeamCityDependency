@@ -173,7 +173,7 @@ namespace TeamCityDependency
             Boolean BuildDatacoreCompleted = false;
             int limitIndex = -1;
 
-            List<string> list = new List<string>(); 
+            List<string> list = new List<string>();
             while (!BuildDatacoreCompleted || !BuildDatacoreStarted)
             {
                 list = new List<string>();
@@ -185,21 +185,44 @@ namespace TeamCityDependency
                 using (var content = response.GetResponseStream())
                 using (var reader = new StreamReader(content))
                 {
-                    int idx = 0;
-                    while (reader.Peek() >= 0)
+
+                    string line;
+                    while ((line = reader.ReadLine()) != null)
                     {
-                        list.Add(reader.ReadLine());
-                        if(!BuildDatacoreStarted && list[list.Count - 1].Contains("Build DataCore"))
+                        list.Add(line);
+                    }
+
+                    int idx = 0;
+
+                    int startIndex = -1;
+                    int endIndex = -1;
+
+                    while (idx < list.Count)
+                    {
+                        if (!BuildDatacoreStarted && list[idx].Contains("Build DataCore"))
                         {
                             BuildDatacoreStarted = true;
-                            limitIndex = idx;
+                            startIndex = idx;
                         }
 
-                        if(BuildDatacoreStarted && idx > limitIndex && list[list.Count - 1].Contains("Process exited with code 0"))
+                        if (BuildDatacoreStarted && list[idx].Contains("Process exited with code 0"))
                         {
                             BuildDatacoreCompleted = true;
+                            endIndex = idx;
                         }
                         idx++;
+                    }
+
+                    if (BuildDatacoreStarted && BuildDatacoreCompleted)
+                    {
+                        Console.WriteLine(startIndex);
+                        Console.WriteLine(endIndex);
+                        break;
+                    }
+                    else
+                    {
+                        BuildDatacoreStarted = false;
+                        BuildDatacoreCompleted = false;
                     }
                 }
             }
@@ -543,26 +566,49 @@ namespace TeamCityDependency
                 using (var content = response.GetResponseStream())
                 using (var reader = new StreamReader(content))
                 {
-                    int idx = 0;
-                    while (reader.Peek() >= 0)
+
+                    string line;
+                    while ((line = reader.ReadLine()) != null)
                     {
-                        list.Add(reader.ReadLine());
-                        if (!BuildDatacoreStarted && list[list.Count - 1].Contains("Build DataCore"))
+                        list.Add(line);
+                    }
+
+                    int idx = 0;
+
+                    int startIndex = -1;
+                    int endIndex = -1;
+
+                    while (idx < list.Count)
+                    {
+                        if (!BuildDatacoreStarted && list[idx].Contains("Build DataCore"))
                         {
                             BuildDatacoreStarted = true;
-                            limitIndex = idx;
-                            Console.WriteLine("Build Process Started");
+                            startIndex = idx;
                         }
 
-                        if (BuildDatacoreStarted && idx > limitIndex && list[idx].Contains("Process exited with code 0"))
+                        if (BuildDatacoreStarted &&  list[idx].Contains("Process exited with code 0"))
                         {
                             BuildDatacoreCompleted = true;
-                            Console.WriteLine("Build Process Eneded");
+                            endIndex = idx;
                         }
                         idx++;
                     }
+
+                    if(BuildDatacoreStarted && BuildDatacoreCompleted)
+                    {
+                        Console.WriteLine(startIndex);
+                        Console.WriteLine(endIndex);
+                        break;
+                    }
+                    else
+                    {
+                        BuildDatacoreStarted = false;
+                        BuildDatacoreCompleted = false;
+                    }
                 }
             }
+
+            int a = 5;
         }
 
         static void Main(string[] args)
@@ -586,7 +632,7 @@ namespace TeamCityDependency
             sendSystemFileMails(buildInformation);
 
 
-            //testMethod("324398");
+            //testMethod("324399");
 
 
 
