@@ -12,6 +12,8 @@ using System.Runtime.Serialization.Formatters.Binary;
 using Newtonsoft.Json;
 using System.Net.Mail;
 using System.Threading;
+using System.Net.Http;
+using Newtonsoft.Json.Linq;
 
 namespace TeamCityDependency
 {
@@ -239,18 +241,6 @@ namespace TeamCityDependency
             }
         }
 
-        public static void refreshAPIS(String argument)
-        {
-            List<string> list = new List<string>();
-
-            var webRequest = WebRequest.Create(@"http://172.20.0.179/httpAuth/downloadBuildLog.html?buildId=" + argument);
-            webRequest.Method = "GET";
-            webRequest.Headers["Authorization"] = "Basic " + Convert.ToBase64String(System.Text.Encoding.Default.GetBytes("kpujara:Lilyaldrin123"));
-
-            var response = webRequest.GetResponse();
-            var content = response.GetResponseStream();
-        }
-
         public static List<string> GetDisassembly(string fileName)
         {
             var fileContents = new List<string>();
@@ -411,7 +401,7 @@ namespace TeamCityDependency
             File.WriteAllText(binary+".json", jsonStr);
         }
 
-        public static void sendMail(HashSet<string> systemFiles)
+        public static void sendMail(HashSet<string> systemFiles, List<string> buildInformation)
         {
 
             Console.WriteLine("Reached Mail Line");
@@ -422,7 +412,14 @@ namespace TeamCityDependency
             mail.From = new MailAddress("teamcity@datacore.com");
             mail.To.Add("khushalpujara@gmail.com");
             mail.Subject = "System Files Affected";
-            mail.Body = "The following files need to be re-tested \n";
+
+            mail.Body = "Build Information:";
+            foreach(String str in buildInformation)
+            {
+                mail.Body += str + "\n";
+            }
+
+            mail.Body = "\n The following drivers need to be re-tested \n";
             foreach(String s in systemFiles)
             {
                 mail.Body += s + "\n";
@@ -455,7 +452,7 @@ namespace TeamCityDependency
             {
                 if (str.EndsWith(".sys"))
                 {
-                    affectedSystemFiles.Add(str);
+                    affectedSystemFiles.Add(str + " <- " + baseDLL);
                 }
 
                 if (!hs.Contains(str))
@@ -468,12 +465,51 @@ namespace TeamCityDependency
             return d;
         }
 
-        static void sendSystemFileMails()
+        static void sendSystemFileMails(List<string> buildInformation)
         {
             if(affectedSystemFiles.Count != 0)
             {
-                sendMail(affectedSystemFiles);
+                sendMail(affectedSystemFiles, buildInformation);
             }
+        }
+
+        public static List<string> getBuildInformation(string argument)
+        {
+
+
+            List<string> list = new List<string>();
+            var webRequest = (HttpWebRequest)WebRequest.Create(@"http://172.20.0.179/httpAuth/app/rest/builds/id:" + argument);
+
+            webRequest.Method = "GET";
+            webRequest.Accept = "application/json";
+            webRequest.Headers["Authorization"] = "Basic " + Convert.ToBase64String(System.Text.Encoding.Default.GetBytes("kpujara:Lilyaldrin123"));
+
+
+            var response = webRequest.GetResponse();
+            var content = response.GetResponseStream();
+            var reader = new StreamReader(content).ReadToEnd();
+
+            List<string> buildInformation = new List<String>();
+            
+            dynamic data = JObject.Parse(reader);
+
+            Console.WriteLine(data);
+
+            buildInformation.Add((string) "Build ID : " + data["id"]);
+            buildInformation.Add((string)"Build Type ID : " + data["buildTypeId"]);
+            buildInformation.Add((string)"Build Number : " + data["number"]);
+            buildInformation.Add((string)"Branch Name : " + data["branchName"]);
+
+            if(data["triggered"]["type"] == "vcs")
+            {
+                buildInformation.Add((string)"Triggered By : VCS");
+            }
+            else
+            {
+                buildInformation.Add((string)"Triggered By : " + data["triggered"]["user"]["username"]);
+            }
+
+            return buildInformation;
         }
 
         static void Main(string[] args)
@@ -481,10 +517,6 @@ namespace TeamCityDependency
             variableSetup();
             systemBinaryLoad();
             mapSetup("Datacore\\");
-            for(int i = 0; i < 2; i ++)
-            {
-                refreshAPIS(args[0]);
-            }
             parseBuildLog(args[0]);
             List<string> files = getAllChangedFiles(args[1]);
             files.Add("PhysicalDisk.cpp");
@@ -493,11 +525,14 @@ namespace TeamCityDependency
             {
                 generateJSON(file);
             }
-            foreach(String s in affectedSystemFiles)
+            foreach (String s in affectedSystemFiles)
             {
                 Console.WriteLine(s);
             }
-            sendSystemFileMails();
+            List<string> buildInformation = getBuildInformation(args[1]);
+            sendSystemFileMails(buildInformation);
+
+ 
         }
     }
 
