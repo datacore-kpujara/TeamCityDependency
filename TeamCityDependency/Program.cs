@@ -440,13 +440,13 @@ namespace TeamCityDependency
             mail.To.Add("khushalpujara@gmail.com");
             mail.Subject = "System Files Affected";
 
-            mail.Body = "Build Information:";
+            mail.Body = "Build Information: \n";
             foreach(String str in buildInformation)
             {
                 mail.Body += str + "\n";
             }
 
-            mail.Body += "\n The following drivers need to be re-tested \n";
+            mail.Body += "\nThe following drivers need to be re-tested \n";
             foreach(String s in systemFiles)
             {
                 mail.Body += s + "\n";
@@ -629,6 +629,7 @@ namespace TeamCityDependency
                 Console.WriteLine(s);
             }
             List<string> buildInformation = getBuildInformation(args[0]);
+            buildInformation.Add("SHA1 : " + args[2]);
             sendSystemFileMails(buildInformation);
 
 
