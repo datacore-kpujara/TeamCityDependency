@@ -437,8 +437,9 @@ namespace TeamCityDependency
             SmtpClient SmtpServer = new SmtpClient("smtp-mail.outlook.com");
 
             mail.From = new MailAddress("teamcity@datacore.com");
-            mail.To.Add("khushalpujara@gmail.com");
-            mail.Subject = "System Files Affected";
+            mail.To.Add("khushal.pujara@datacore.com");
+            mail.To.Add("bill.welsh@datacore.com");
+            mail.Subject = "Driver Affected";
 
             mail.Body = "Build Information: \n";
             foreach(String str in buildInformation)
@@ -618,7 +619,7 @@ namespace TeamCityDependency
             mapSetup("Datacore\\");
             parseBuildLog(args[0]);
             List<string> files = getAllChangedFiles(args[1]);
-            files.Add("PhysicalDisk.cpp");
+            //files.Add("PhysicalDisk.cpp");
             File.WriteAllLinesAsync("ChangedFiles.txt", files);
             foreach (string file in files)
             {
