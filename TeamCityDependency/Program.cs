@@ -618,6 +618,7 @@ namespace TeamCityDependency
             systemBinaryLoad();
             mapSetup("Datacore\\");
             parseBuildLog(args[0]);
+            serializeMap("Dependencies.io");
             List<string> files = getAllChangedFiles(args[1]);
             //files.Add("PhysicalDisk.cpp");
             File.WriteAllLinesAsync("ChangedFiles.txt", files);
@@ -632,12 +633,7 @@ namespace TeamCityDependency
             List<string> buildInformation = getBuildInformation(args[0]);
             buildInformation.Add("SHA1 : " + args[2]);
             sendSystemFileMails(buildInformation);
-
-
             //testMethod("324399");
-
-
-
         }
     }
 
