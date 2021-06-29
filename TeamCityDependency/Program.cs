@@ -437,8 +437,8 @@ namespace TeamCityDependency
             SmtpClient SmtpServer = new SmtpClient("smtp-mail.outlook.com");
 
             mail.From = new MailAddress("teamcity@datacore.com");
-            mail.To.Add("khushal.pujara@datacore.com");
-            mail.To.Add("bill.welsh@datacore.com");
+            mail.To.Add("hlkdriverchanges@datacore.com");
+            //mail.To.Add("bill.welsh@datacore.com");
             mail.Subject = "Driver Affected";
 
             mail.Body = "Build Information: \n";
